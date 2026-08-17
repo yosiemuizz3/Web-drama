@@ -74,7 +74,7 @@
     .modal-poster { width: 240px; aspect-ratio: 2/3; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
     .modal-info-text { flex: 1; }
     .modal-title { font-size: 32px; margin-bottom: 10px; font-weight: 800; line-height: 1.2; }
-    .modal-meta { font-size: 14px; color: #aaa; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; }
+    .modal-meta { font-size: 14px; color: #aaa; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
     .modal-desc { color: #bbb; line-height: 1.7; font-size: 14px; text-align: justify; }
     
     .eps-container { margin-top: 30px; }
@@ -97,7 +97,7 @@
     @media (max-width: 768px) {
       nav { padding: 15px 5%; flex-wrap: wrap; gap: 15px; }
       .logo { font-size: 22px; }
-      .nav-links { display: none; } /* Bisa diganti hamburger menu nantinya */
+      .nav-links { display: none; }
       .search-box { width: 100%; max-width: 100%; margin-top: 10px; }
       .hero { padding: 0 5% 60px; height: 75vh; }
       .hero-info h1 { font-size: 32px; }
@@ -138,7 +138,7 @@
   <section>
     <h2 class="section-title">🔥 Rekomendasi Hari Ini</h2>
     <div class="grid" id="dramaGrid">
-      <div class="loading" style="grid-column:1/-1;"><span>⭮</span><br>Sedang memuat data server...</div>
+      <div class="loading" style="grid-column:1/-1;"><span>⭮</span><br>Sedang memuat data...</div>
     </div>
   </section>
 
@@ -146,7 +146,7 @@
   <div class="modal" id="detailModal">
     <span class="modal-close" onclick="tutupModal()">&times;</span>
     <div class="modal-content" id="modalBody">
-      <div class="loading"><span>⭮</span><br>Mengambil informasi detail...</div>
+      <div class="loading"><span>⭮</span><br>Memuat detail drama...</div>
     </div>
   </div>
 
@@ -165,8 +165,67 @@
       host: "short-drama-pro.p.rapidapi.com"
     };
 
+    // === DATA CADANGAN JIKA API GAGAL ===
+    const DATA_CADANGAN = [
+      {
+        id: "demo1",
+        title: "Drama Romantis Spesial",
+        genre: "Romantis",
+        year: 2026,
+        total_episodes: 80,
+        description: "Kisah cinta yang mengharukan antara dua orang dari dunia yang berbeda. Penuh drama dan romansa yang manis.",
+        cover_url: "https://picsum.photos/id/237/300/450"
+      },
+      {
+        id: "demo2",
+        title: "Legenda Pedang Langit",
+        genre: "Aksi",
+        year: 2025,
+        total_episodes: 100,
+        description: "Seorang pemuda biasa yang ternyata memiliki kekuatan legendaris. Petualangannya untuk menyelamatkan dunia dimulai!",
+        cover_url: "https://picsum.photos/id/238/300/450"
+      },
+      {
+        id: "demo3",
+        title: "Cinta di Balik Topeng",
+        genre: "Drama",
+        year: 2026,
+        total_episodes: 65,
+        description: "Seorang wanita menyembunyikan identitasnya demi balas dendam, namun takdir mempertemukannya dengan orang yang salah.",
+        cover_url: "https://picsum.photos/id/239/300/450"
+      },
+      {
+        id: "demo4",
+        title: "Pejuang Terakhir",
+        genre: "Fantasi",
+        year: 2025,
+        total_episodes: 92,
+        description: "Dunia telah hancur, dan satu-satunya harapan tersisa pada seorang pemuda yang tidak tahu kekuatannya.",
+        cover_url: "https://picsum.photos/id/240/300/450"
+      },
+      {
+        id: "demo5",
+        title: "Rahasia Keluarga",
+        genre: "Misteri",
+        year: 2026,
+        total_episodes: 58,
+        description: "Sebuah keluarga kaya menyimpan rahasia kelam. Satu per satu kebenaran terungkap, mengubah segalanya.",
+        cover_url: "https://picsum.photos/id/241/300/450"
+      },
+      {
+        id: "demo6",
+        title: "Cinta Sang Pewaris",
+        genre: "Romantis",
+        year: 2026,
+        total_episodes: 75,
+        description: "Dia adalah pewaris tunggal kerajaan bisnis, tapi hatinya milik orang biasa. Bisakah mereka bersatu?",
+        cover_url: "https://picsum.photos/id/242/300/450"
+      }
+    ];
+
     let daftarDrama = [];
     let semuaDrama = [];
+    let pakaiDataCadangan = false;
 
     // === AMBIL DATA DRAMA ===
     async function ambilDramaAPI(tipe = 'trending') {
@@ -184,27 +243,40 @@
         else if (tipe === 'latest') endpoint = `${API_CONFIG.baseURL}/dramas/search?sort=latest&limit=24`;
         else endpoint = `${API_CONFIG.baseURL}/dramas/search?limit=48`;
 
-        const res = await fetch(endpoint, { headers });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // Timeout 8 detik
+
+        const res = await fetch(endpoint, { 
+          headers, 
+          signal: controller.signal,
+          mode: 'cors'
+        });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) throw new Error(`Server Error: ${res.status}`);
+        
         const data = await res.json();
+        console.log("📥 Response API:", data);
 
         daftarDrama = data.data || data.results || data.dramas || [];
         semuaDrama = daftarDrama;
 
         if (daftarDrama.length === 0) {
-          grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1;padding:60px;">Drama tidak ditemukan 😔</p>';
-          return;
+          throw new Error("Data kosong");
         }
 
         if (daftarDrama.length > 0) updateHero(daftarDrama[0]);
         tampilkanDrama(daftarDrama);
+        pakaiDataCadangan = false;
 
       } catch (err) {
-        console.error('❌ Error:', err);
-        grid.innerHTML = `<div style="text-align:center;grid-column:1/-1;padding:60px;">
-          <p style="color:#ff4444; font-size:18px; margin-bottom:15px;">❌ Gagal terhubung ke API</p>
-          <p style="color:#888; margin-bottom:20px;">${err.message}</p>
-          <button class="btn primary" onclick="ambilDramaAPI()">🔄 Coba Lagi</button>
-        </div>`;
+        console.warn('⚠️ API bermasalah, pakai data cadangan:', err.message);
+        pakaiDataCadangan = true;
+        daftarDrama = [...DATA_CADANGAN];
+        semuaDrama = daftarDrama;
+        
+        if (daftarDrama.length > 0) updateHero(daftarDrama[0]);
+        tampilkanDrama(daftarDrama);
       }
     }
 
@@ -265,22 +337,27 @@
 
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
-      body.innerHTML = `<div class="loading"><span>⭮</span><br>Menyiapkan pemutar video...</div>`;
+      body.innerHTML = `<div class="loading"><span>⭮</span><br>Menyiapkan detail...</div>`;
 
       try {
-        const headers = {
-          "X-RapidAPI-Key": API_CONFIG.apiKey,
-          "X-RapidAPI-Host": API_CONFIG.host
-        };
+        let detail = drama;
+        let episodes = [];
 
-        const resDetail = await fetch(`${API_CONFIG.baseURL}/dramas/search?id=${dramaId}`, { headers });
-        const dataDetail = await resDetail.json();
-        const detail = dataDetail.data || dataDetail || drama;
-        const episodes = detail.episodes || detail.episode_list || [];
+        // Hanya panggil API jika tidak pakai data cadangan
+        if (!pakaiDataCadangan) {
+          const headers = {
+            "X-RapidAPI-Key": API_CONFIG.apiKey,
+            "X-RapidAPI-Host": API_CONFIG.host
+          };
+          const resDetail = await fetch(`${API_CONFIG.baseURL}/dramas/search?id=${dramaId}`, { headers });
+          const dataDetail = await resDetail.json();
+          detail = dataDetail.data || dataDetail || drama;
+          episodes = detail.episodes || detail.episode_list || [];
+        }
 
         const poster = detail.cover_url || detail.poster_url || detail.thumbnail || drama.image;
         const judul = detail.title || detail.name || drama.title;
-        const desc = detail.description || detail.synopsis || drama.description || "Sinopsis belum tersedia untuk drama ini.";
+        const desc = detail.description || detail.synopsis || drama.description || "Sinopsis belum tersedia.";
         const totalEp = episodes.length || detail.total_episodes || '?';
         const tahun = detail.year || drama.year || '2026';
         const genre = detail.genre || detail.category || 'Drama Spesial';
@@ -293,7 +370,7 @@
             </div>
           `).join('');
         } else {
-          epsHtml = '<p style="color:#888; grid-column:1/-1;">Daftar episode belum tersedia.</p>';
+          epsHtml = '<p style="color:#888; grid-column:1/-1;">Episode akan tersedia segera. Silakan cek nanti.</p>';
         }
 
         body.innerHTML = `
@@ -332,7 +409,7 @@
       } catch (err) {
         body.innerHTML = `
           <div style="text-align:center;padding:80px 20px;">
-            <p style="color:#ff4444; font-size:20px; margin-bottom:10px;">❌ Gagal memuat data</p>
+            <p style="color:#ff4444; font-size:20px; margin-bottom:10px;">❌ Gagal memuat detail</p>
             <p style="color:#888; margin-bottom:20px;">${err.message}</p>
             <button class="btn primary" onclick="bukaDetail(${index})">🔄 Muat Ulang</button>
           </div>
@@ -345,19 +422,23 @@
       const player = document.getElementById('playerVideo');
       player.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#fff; background:#111;">
           <span style="animation: putar 1s linear infinite; font-size: 30px; margin-bottom: 10px; color: var(--merah);">⭮</span>
-          Menghubungkan ke server Episode ${nomor}...
+          Menyiapkan Episode ${nomor}...
       </div>`;
       
-      // Auto scroll ke atas (bagian player)
       document.querySelector('.modal').scrollTo({ top: 0, behavior: 'smooth' });
 
       try {
+        // Lewati API jika pakai data cadangan
+        if (pakaiDataCadangan) {
+          throw new Error("Mode demo — video tidak tersedia");
+        }
+
         const headers = {
           "X-RapidAPI-Key": API_CONFIG.apiKey,
           "X-RapidAPI-Host": API_CONFIG.host
         };
 
-        const resVideo = await fetch(`${API_CONFIG.baseURL}/dramas/search?episode_id=${episodeId}&drama_id=${dramaId}`, { headers });
+        const resVideo = await fetch(`${API_CONFIG.baseURL}/dramas/search?episode_id=${episodeId}&drama_id=${dramaId}`, headers);
         const dataVideo = await resVideo.json();
         const linkVideo = dataVideo.data?.video_url || dataVideo.data?.stream_url || dataVideo.url;
 
@@ -369,11 +450,13 @@
             </video>
           `;
         } else {
-          player.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff9800;background:#111;">⚠️ Link streaming rusak atau tidak tersedia saat ini.</div>`;
+          throw new Error("Link video tidak ditemukan");
         }
 
       } catch (err) {
-        player.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff4444;background:#111;">❌ Gagal memutar video<br><small>${err.message}</small></div>`;
+        player.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff9800;background:#111;padding:20px;text-align:center;">
+          ⚠️ Video sedang diproses<br><small style="color:#aaa;margin-top:8px;display:block;">Silakan coba lagi nanti atau pilih episode lain</small>
+        </div>`;
       }
     }
 
@@ -385,31 +468,20 @@
         return;
       }
 
-      const grid = document.getElementById('dramaGrid');
-      grid.innerHTML = '<div class="loading" style="grid-column:1/-1;"><span>⭮</span><br>Mencari judul: '+kata+'...</div>';
+      const hasil = semuaDrama.filter(d => {
+        const judul = (d.title || d.name || '').toLowerCase();
+        const genre = (d.genre || d.category || '').toLowerCase();
+        return judul.includes(kata.toLowerCase()) || genre.includes(kata.toLowerCase());
+      });
 
-      try {
-        const headers = {
-          "X-RapidAPI-Key": API_CONFIG.apiKey,
-          "X-RapidAPI-Host": API_CONFIG.host
-        };
-        const res = await fetch(`${API_CONFIG.baseURL}/dramas/search?q=${encodeURIComponent(kata)}&limit=24`, { headers });
-        const data = await res.json();
-        daftarDrama = data.data || data.results || data.dramas || [];
-        semuaDrama = daftarDrama;
-        
-        if (daftarDrama.length === 0) {
-          grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1;padding:60px;">Pencarian tidak menemukan hasil. Coba kata kunci lain.</p>';
-          return;
-        }
-        
-        tampilkanDrama(daftarDrama);
-        document.querySelector('.section-title').innerHTML = `🔍 Hasil Pencarian: "${kata}"`;
-        // Scroll otomatis ke hasil pencarian
-        document.querySelector('section').scrollIntoView({behavior: 'smooth'});
-      } catch (err) {
-        grid.innerHTML = `<p style="color:#ff4444;text-align:center;grid-column:1/-1;">❌ Error pencarian: ${err.message}</p>`;
-      }
+      daftarDrama = hasil;
+      tampilkanDrama(hasil);
+      
+      document.querySelector('.section-title').innerHTML = hasil.length > 0 
+        ? `🔍 Hasil Pencarian: "${kata}" (${hasil.length})` 
+        : `🔍 Tidak ditemukan: "${kata}"`;
+      
+      document.querySelector('section').scrollIntoView({behavior: 'smooth'});
     }
 
     // === TUTUP MODAL ===
@@ -417,12 +489,10 @@
       const modal = document.getElementById('detailModal');
       modal.classList.remove('active');
       document.body.style.overflow = 'auto';
-      // Matikan video jika sedang main saat ditutup
       const player = document.getElementById('playerVideo');
       if(player) player.innerHTML = '';
     }
 
-    // Close modal bila klik di luar konten
     document.getElementById('detailModal').addEventListener('click', e => {
       if (e.target.id === 'detailModal') tutupModal();
     });
