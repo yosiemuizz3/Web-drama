@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DRACIN HUB by Mr Yosie — Nonton Drama Pendek Sub Indo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    :root { 
+      --merah: #e50914; 
+      --merah-hover: #f40612;
+      --gelap: #0b0c10; 
+      --abu-tua: #141414;
+      --abu-muda: #2b2b2b;
+      --teks: #e5e5e5; 
+    }
+    body { background: var(--gelap); color: white; min-height: 100vh; overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--gelap); }
+    ::-webkit-scrollbar-thumb { background: var(--abu-muda); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--merah); }
+
+    /* NAVBAR */
+    nav { position: fixed; top: 0; width: 100%; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 15px 5%; background: rgba(11, 12, 16, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+    .logo { font-size: 26px; font-weight: 800; color: var(--merah); letter-spacing: -0.5px; display: flex; flex-direction: column; line-height: 1; }
+    .logo span { font-size: 11px; color: #aaa; font-weight: 400; letter-spacing: 1px; margin-top: 2px; }
+    .nav-links { display: flex; gap: 30px; list-style: none; font-size: 14px; font-weight: 500; color: #aaa; }
+    .nav-links li { position: relative; transition: color 0.3s; }
+    .nav-links li:hover { color: white; cursor: pointer; }
+    .nav-links li::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0%; height: 2px; background: var(--merah); transition: width 0.3s ease; }
+    .nav-links li:hover::after { width: 100%; }
+    .search-box { padding: 10px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; width: 220px; font-size: 13px; transition: all 0.3s; outline: none; }
+    .search-box:focus { background: rgba(255,255,255,0.1); border-color: var(--merah); width: 260px; }
+
+    /* HERO BANNER */
+    .hero { height: 85vh; background: linear-gradient(to top, var(--gelap) 0%, rgba(11,12,16,0.3) 50%, rgba(11,12,16,0.8) 100%), url('https://picsum.photos/id/1035/1920/1080') center/cover; display: flex; align-items: flex-end; padding: 0 5% 80px; transition: background 0.5s ease; position: relative; }
+    .hero::after { content:''; position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to top, var(--gelap), transparent); pointer-events: none; }
+    .hero-info { max-width: 600px; position: relative; z-index: 2; }
+    .hero-info h1 { font-size: 56px; margin-bottom: 15px; font-weight: 800; line-height: 1.1; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+    .hero-info p { font-size: 16px; color: #ddd; margin-bottom: 25px; line-height: 1.6; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
+    .btn { padding: 12px 28px; border-radius: 6px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-right: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn.primary { background: var(--merah); color: white; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4); }
+    .btn.secondary { background: rgba(109,109,110,.7); color: white; backdrop-filter: blur(5px); }
+    .btn:hover { transform: scale(1.05); }
+    .btn.primary:hover { background: var(--merah-hover); }
+
+    /* SECTION & GRID */
+    section { padding: 40px 5%; position: relative; z-index: 5; }
+    .section-title { font-size: 22px; margin-bottom: 24px; font-weight: 700; border-left: 4px solid var(--merah); padding-left: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+    .card { background: transparent; transition: all .3s ease; cursor: pointer; position: relative; }
+    .card-img-wrapper { position: relative; overflow: hidden; border-radius: 8px; aspect-ratio: 2/3; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .card:hover .card-img { transform: scale(1.1); }
+    .card:hover .card-img-wrapper::after { content: '▶ Play'; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: white; }
+    .card-info { padding: 12px 0; }
+    .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-meta { font-size: 12px; color: #888; display: flex; justify-content: space-between; align-items: center; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; background: rgba(229, 9, 20, 0.2); color: var(--merah); border: 1px solid rgba(229, 9, 20, 0.3); margin-right: 5px; margin-bottom: 8px; }
+
+    /* MODAL DETAIL */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.9); backdrop-filter: blur(10px); z-index: 200; overflow-y: auto; padding: 40px 5%; opacity: 0; transition: opacity 0.3s ease; }
+    .modal.active { display: block; opacity: 1; }
+    .modal-close { position: fixed; top: 20px; right: 40px; font-size: 40px; cursor: pointer; z-index: 210; color: #aaa; transition: all .2s; background: rgba(0,0,0,0.5); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .modal-close:hover { color: white; background: var(--merah); transform: rotate(90deg); }
+    .modal-content { max-width: 1000px; margin: 0 auto; background: var(--abu-tua); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+    
+    .modal-body-inner { padding: 40px; }
+    .modal-top { display: flex; gap: 30px; margin-bottom: 30px; }
+    .modal-poster { width: 240px; aspect-ratio: 2/3; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
+    .modal-info-text { flex: 1; }
+    .modal-title { font-size: 32px; margin-bottom: 10px; font-weight: 800; line-height: 1.2; }
+    .modal-meta { font-size: 14px; color: #aaa; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; }
+    .modal-desc { color: #bbb; line-height: 1.7; font-size: 14px; text-align: justify; }
+    
+    .eps-container { margin-top: 30px; }
+    .eps-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; padding-right: 10px; }
+    .eps-item { padding: 10px 5px; background: var(--abu-muda); border-radius: 6px; text-align: center; cursor: pointer; transition: all .2s; font-size: 13px; font-weight: 600; color: #ccc; }
+    .eps-item:hover { background: var(--merah); color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(229,9,20,0.3); }
+    
+    .video-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; margin-bottom: 30px; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+    .video-container video { width: 100%; height: 100%; border: none; outline: none; }
+    
+    .loading { text-align: center; padding: 60px 20px; color: #888; font-size: 16px; width: 100%; }
+    .loading span { display: inline-block; animation: putar 1s linear infinite; font-size: 30px; margin-bottom: 10px; color: var(--merah); }
+    @keyframes putar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 40px 20px; color: #666; font-size: 13px; background: #07070a; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.02); }
+    footer span { color: var(--merah); font-weight: 600; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 15px 5%; flex-wrap: wrap; gap: 15px; }
+      .logo { font-size: 22px; }
+      .nav-links { display: none; } /* Bisa diganti hamburger menu nantinya */
+      .search-box { width: 100%; max-width: 100%; margin-top: 10px; }
+      .hero { padding: 0 5% 60px; height: 75vh; }
+      .hero-info h1 { font-size: 32px; }
+      .hero-info p { font-size: 14px; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+      .modal { padding: 0; }
+      .modal-close { top: 10px; right: 10px; width: 40px; height: 40px; font-size: 30px; background: rgba(0,0,0,0.8); }
+      .modal-content { border-radius: 0; margin: 0; min-height: 100vh; }
+      .modal-body-inner { padding: 20px; }
+      .modal-top { flex-direction: column; align-items: center; text-align: center; }
+      .modal-poster { width: 180px; }
+      .modal-meta { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="logo">DRACIN HUB <span>by Mr Yosie</span></div>
+    <ul class="nav-links">
+      <li onclick="ambilDramaAPI('trending')">🔥 Populer</li>
+      <li onclick="ambilDramaAPI('latest')">🆕 Terbaru</li>
+      <li onclick="ambilDramaAPI('all')">📺 Semua</li>
+    </ul>
+    <input type="text" class="search-box" id="searchInput" placeholder="🔍 Cari judul drama..." onkeypress="if(event.key==='Enter') cariDrama()">
+  </nav>
+
+  <!-- HERO BANNER -->
+  <div class="hero" id="heroSection">
+    <div class="hero-info" id="heroContent">
+      <h1>Memuat Drama Terbaik...</h1>
+      <p>Sedang menyiapkan koleksi drama pilihan terbaik khusus untukmu.</p>
+    </div>
+  </div>
+
+  <!-- DAFTAR DRAMA -->
+  <section>
+    <h2 class="section-title">🔥 Rekomendasi Hari Ini</h2>
+    <div class="grid" id="dramaGrid">
+      <div class="loading" style="grid-column:1/-1;"><span>⭮</span><br>Sedang memuat data server...</div>
+    </div>
+  </section>
+
+  <!-- MODAL DETAIL & PLAYER -->
+  <div class="modal" id="detailModal">
+    <span class="modal-close" onclick="tutupModal()">&times;</span>
+    <div class="modal-content" id="modalBody">
+      <div class="loading"><span>⭮</span><br>Mengambil informasi detail...</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>🎬 DRACIN HUB — Platform Nonton Drama Pendek Subtitle Indonesia</p>
+    <p style="margin-top: 8px;">Kualitas HD • Update Setiap Hari • Akses Cepat</p>
+    <p style="margin-top: 15px; font-size: 12px;">© 2026 Crafted with ❤️ <span>by Mr Yosie</span>. Semua hak dilindungi.</p>
+  </footer>
+
+  <script>
+    // === KONFIGURASI API ===
+    const API_CONFIG = {
+      baseURL: "https://short-drama-pro.p.rapidapi.com/starshort/api/v1",
+      apiKey: "8b5bd09385msh722e85b060feadep13b561jsn74c4cdd44e59",
+      host: "short-drama-pro.p.rapidapi.com"
+    };
+
+    let daftarDrama = [];
+    let semuaDrama = [];
+
+    // === AMBIL DATA DRAMA ===
+    async function ambilDramaAPI(tipe = 'trending') {
+      const grid = document.getElementById('dramaGrid');
+      grid.innerHTML = '<div class="loading" style="grid-column:1/-1;"><span>⭮</span><br>Mengambil data dari server...</div>';
+
+      try {
+        const headers = {
+          "X-RapidAPI-Key": API_CONFIG.apiKey,
+          "X-RapidAPI-Host": API_CONFIG.host
+        };
+
+        let endpoint = "";
+        if (tipe === 'trending') endpoint = `${API_CONFIG.baseURL}/dramas/search?sort=trending&limit=24`;
+        else if (tipe === 'latest') endpoint = `${API_CONFIG.baseURL}/dramas/search?sort=latest&limit=24`;
+        else endpoint = `${API_CONFIG.baseURL}/dramas/search?limit=48`;
+
+        const res = await fetch(endpoint, { headers });
+        const data = await res.json();
+
+        daftarDrama = data.data || data.results || data.dramas || [];
+        semuaDrama = daftarDrama;
+
+        if (daftarDrama.length === 0) {
+          grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1;padding:60px;">Drama tidak ditemukan 😔</p>';
+          return;
+        }
+
+        if (daftarDrama.length > 0) updateHero(daftarDrama[0]);
+        tampilkanDrama(daftarDrama);
+
+      } catch (err) {
+        console.error('❌ Error:', err);
+        grid.innerHTML = `<div style="text-align:center;grid-column:1/-1;padding:60px;">
+          <p style="color:#ff4444; font-size:18px; margin-bottom:15px;">❌ Gagal terhubung ke API</p>
+          <p style="color:#888; margin-bottom:20px;">${err.message}</p>
+          <button class="btn primary" onclick="ambilDramaAPI()">🔄 Coba Lagi</button>
+        </div>`;
+      }
+    }
+
+    // === UPDATE HERO BANNER ===
+    function updateHero(drama) {
+      const hero = document.getElementById('heroSection');
+      const content = document.getElementById('heroContent');
+      
+      const poster = drama.cover_url || drama.poster_url || drama.thumbnail || drama.image;
+      const judul = drama.title || drama.name || "Drama Pendek Spesial";
+      const desc = drama.description || drama.synopsis || "Saksikan kisah drama seru dengan kualitas HD subtitle Indonesia, update tercepat hanya di sini.";
+
+      hero.style.background = `linear-gradient(to top, var(--gelap) 0%, rgba(11,12,16,0.3) 50%, rgba(11,12,16,0.8) 100%), url("${poster || 'https://picsum.photos/id/1035/1920/1080'}") top center/cover no-repeat`;
+      
+      content.innerHTML = `
+        <h1>${judul}</h1>
+        <p>${desc.substring(0, 150)}...</p>
+        <button class="btn primary" onclick="bukaDetail(0)">▶ Tonton Sekarang</button>
+        <button class="btn secondary" onclick="bukaDetail(0)">ℹ️ Detail</button>
+      `;
+    }
+
+    // === TAMPILKAN DAFTAR DRAMA ===
+    function tampilkanDrama(list) {
+      const grid = document.getElementById('dramaGrid');
+      
+      grid.innerHTML = list.map((drama, index) => {
+        const poster = drama.cover_url || drama.poster_url || drama.thumbnail || drama.image || 'https://picsum.photos/300/450';
+        const judul = drama.title || drama.name || "Judul Drama";
+        const tahun = drama.year || drama.release_year || '2026';
+        const totalEp = drama.total_episodes || drama.episode_count || '?';
+        const genre = drama.category || drama.genre || 'Romance';
+
+        return `
+          <div class="card" onclick="bukaDetail(${index})">
+            <div class="card-img-wrapper">
+                <img src="${poster}" alt="${judul}" class="card-img" loading="lazy" onerror="this.src='https://picsum.photos/300/450?random=${index}'">
+            </div>
+            <div class="card-info">
+              <span class="badge">${genre}</span>
+              <h3 class="card-title" title="${judul}">${judul}</h3>
+              <div class="card-meta">
+                  <span>⭐ ${tahun}</span>
+                  <span>${totalEp} Ep</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // === BUKA DETAIL & EPISODE ===
+    async function bukaDetail(index) {
+      const drama = daftarDrama[index];
+      const modal = document.getElementById('detailModal');
+      const body = document.getElementById('modalBody');
+      const dramaId = drama.id || drama.drama_id || drama.content_id;
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      body.innerHTML = `<div class="loading"><span>⭮</span><br>Menyiapkan pemutar video...</div>`;
+
+      try {
+        const headers = {
+          "X-RapidAPI-Key": API_CONFIG.apiKey,
+          "X-RapidAPI-Host": API_CONFIG.host
+        };
+
+        const resDetail = await fetch(`${API_CONFIG.baseURL}/dramas/search?id=${dramaId}`, { headers });
+        const dataDetail = await resDetail.json();
+        const detail = dataDetail.data || dataDetail || drama;
+        const episodes = detail.episodes || detail.episode_list || [];
+
+        const poster = detail.cover_url || detail.poster_url || detail.thumbnail || drama.image;
+        const judul = detail.title || detail.name || drama.title;
+        const desc = detail.description || detail.synopsis || drama.description || "Sinopsis belum tersedia untuk drama ini.";
+        const totalEp = episodes.length || detail.total_episodes || '?';
+        const tahun = detail.year || drama.year || '2026';
+        const genre = detail.genre || detail.category || 'Drama Spesial';
+
+        let epsHtml = '';
+        if (episodes.length > 0) {
+          epsHtml = episodes.map(ep => `
+            <div class="eps-item" onclick="putarVideo('${dramaId}', '${ep.id || ep.episode_id}', ${ep.number || ep.episode || 1})">
+              ${ep.number || ep.episode || 1}
+            </div>
+          `).join('');
+        } else {
+          epsHtml = '<p style="color:#888; grid-column:1/-1;">Daftar episode belum tersedia.</p>';
+        }
+
+        body.innerHTML = `
+          <div class="modal-body-inner">
+            <div class="video-container" id="playerVideo">
+              <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#888; background:url('${poster}') center/cover; position:relative;">
+                <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px);"></div>
+                <div style="z-index:2; text-align:center;">
+                    <span style="font-size:40px; color:var(--merah); margin-bottom:10px; display:block;">▶</span>
+                    Silakan pilih episode di bawah untuk mulai menonton
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-top">
+              <img src="${poster}" class="modal-poster" onerror="this.src='https://picsum.photos/300/450'">
+              <div class="modal-info-text">
+                <h2 class="modal-title">${judul}</h2>
+                <div class="modal-meta">
+                  <span class="badge" style="margin:0; font-size:12px;">${genre}</span>
+                  <span>📅 ${tahun}</span>
+                  <span>🎬 ${totalEp} Episode</span>
+                  <span>⭐ Kualitas HD</span>
+                </div>
+                <p class="modal-desc">${desc}</p>
+                
+                <div class="eps-container">
+                    <h3 style="font-size:16px; margin-bottom:15px; font-weight:600; color:#fff;">Pilih Episode</h3>
+                    <div class="eps-list">${epsHtml}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+      } catch (err) {
+        body.innerHTML = `
+          <div style="text-align:center;padding:80px 20px;">
+            <p style="color:#ff4444; font-size:20px; margin-bottom:10px;">❌ Gagal memuat data</p>
+            <p style="color:#888; margin-bottom:20px;">${err.message}</p>
+            <button class="btn primary" onclick="bukaDetail(${index})">🔄 Muat Ulang</button>
+          </div>
+        `;
+      }
+    }
+
+    // === PUTAR VIDEO ===
+    async function putarVideo(dramaId, episodeId, nomor) {
+      const player = document.getElementById('playerVideo');
+      player.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#fff; background:#111;">
+          <span style="animation: putar 1s linear infinite; font-size: 30px; margin-bottom: 10px; color: var(--merah);">⭮</span>
+          Menghubungkan ke server Episode ${nomor}...
+      </div>`;
+      
+      // Auto scroll ke atas (bagian player)
+      document.querySelector('.modal').scrollTo({ top: 0, behavior: 'smooth' });
+
+      try {
+        const headers = {
+          "X-RapidAPI-Key": API_CONFIG.apiKey,
+          "X-RapidAPI-Host": API_CONFIG.host
+        };
+
+        const resVideo = await fetch(`${API_CONFIG.baseURL}/dramas/search?episode_id=${episodeId}&drama_id=${dramaId}`, { headers });
+        const dataVideo = await resVideo.json();
+        const linkVideo = dataVideo.data?.video_url || dataVideo.data?.stream_url || dataVideo.url;
+
+        if (linkVideo) {
+          player.innerHTML = `
+            <video controls autoplay>
+              <source src="${linkVideo}" type="video/mp4">
+              Browser Anda tidak mendukung pemutar video HTML5.
+            </video>
+          `;
+        } else {
+          player.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff9800;background:#111;">⚠️ Link streaming rusak atau tidak tersedia saat ini.</div>`;
+        }
+
+      } catch (err) {
+        player.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff4444;background:#111;">❌ Gagal memutar video<br><small>${err.message}</small></div>`;
+      }
+    }
+
+    // === CARI DRAMA ===
+    async function cariDrama() {
+      const kata = document.getElementById('searchInput').value.trim();
+      if (!kata) {
+        ambilDramaAPI('trending');
+        return;
+      }
+
+      const grid = document.getElementById('dramaGrid');
+      grid.innerHTML = '<div class="loading" style="grid-column:1/-1;"><span>⭮</span><br>Mencari judul: '+kata+'...</div>';
+
+      try {
+        const headers = {
+          "X-RapidAPI-Key": API_CONFIG.apiKey,
+          "X-RapidAPI-Host": API_CONFIG.host
+        };
+        const res = await fetch(`${API_CONFIG.baseURL}/dramas/search?q=${encodeURIComponent(kata)}&limit=24`, { headers });
+        const data = await res.json();
+        daftarDrama = data.data || data.results || data.dramas || [];
+        semuaDrama = daftarDrama;
+        
+        if (daftarDrama.length === 0) {
+          grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1;padding:60px;">Pencarian tidak menemukan hasil. Coba kata kunci lain.</p>';
+          return;
+        }
+        
+        tampilkanDrama(daftarDrama);
+        document.querySelector('.section-title').innerHTML = `🔍 Hasil Pencarian: "${kata}"`;
+        // Scroll otomatis ke hasil pencarian
+        document.querySelector('section').scrollIntoView({behavior: 'smooth'});
+      } catch (err) {
+        grid.innerHTML = `<p style="color:#ff4444;text-align:center;grid-column:1/-1;">❌ Error pencarian: ${err.message}</p>`;
+      }
+    }
+
+    // === TUTUP MODAL ===
+    function tutupModal() {
+      const modal = document.getElementById('detailModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+      // Matikan video jika sedang main saat ditutup
+      const player = document.getElementById('playerVideo');
+      if(player) player.innerHTML = '';
+    }
+
+    // Close modal bila klik di luar konten
+    document.getElementById('detailModal').addEventListener('click', e => {
+      if (e.target.id === 'detailModal') tutupModal();
+    });
+
+    // === MULAI ===
+    document.addEventListener('DOMContentLoaded', () => ambilDramaAPI('trending'));
+  </script>
+
+</body>
+</html>
