@@ -21,9 +21,6 @@
     header.scrolled { background: #000; }
     .nav-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1600px; margin: 0 auto; }
     .logo { font-size: 26px; font-weight: 900; color: var(--red); text-decoration: none; }
-    .nav-middle { display: flex; gap: 24px; align-items: center; }
-    .nav-link { color: var(--text-muted); text-decoration: none; font-size: 15px; transition: color .2s; }
-    .nav-link:hover, .nav-link.active { color: var(--text); }
     .search-box { position: relative; display: flex; align-items: center; }
     .search-input {
       background: rgba(51,51,51,.6); border: 1px solid transparent; color: var(--text);
@@ -101,11 +98,6 @@
 <header id="header">
   <div class="nav-inner">
     <a href="#" class="logo">DRACIN HUB</a>
-    <nav class="nav-middle">
-      <a href="#" class="nav-link active">Beranda</a>
-      <a href="#" class="nav-link">Populer</a>
-      <a href="#" class="nav-link">Terbaru</a>
-    </nav>
     <div class="search-box">
       <i class="fas fa-search search-icon"></i>
       <input type="text" class="search-input" id="searchInput" placeholder="Cari drama china...">
@@ -117,7 +109,7 @@
 <section class="hero">
   <div class="hero-content">
     <h1 class="hero-title">Drama China Short</h1>
-    <p class="hero-desc">Nonton koleksi drama china short terbaik dengan subtitle Indonesia. Data real-time dari API.</p>
+    <p class="hero-desc">Koleksi drama China terbaik dengan subtitle Indonesia. Data real-time dari TMDB API.</p>
     <button class="btn btn-primary" onclick="document.getElementById('dramaGrid').scrollIntoView({behavior:'smooth'})">
       <i class="fas fa-play"></i> Mulai Jelajahi
     </button>
@@ -141,7 +133,7 @@
   <h2 class="section-title" id="sectionLabel">🔥 Terbaru & Populer</h2>
   <div id="loadingBox" class="loading">
     <div class="spinner"></div>
-    <p>Memuat data dari API...</p>
+    <p>Memuat data drama dari API...</p>
   </div>
   <div class="card-grid" id="dramaGrid" style="display:none;"></div>
 </section>
@@ -154,7 +146,7 @@
     <div class="modal-content">
       <h2 class="modal-title" id="modalTitle">Judul Drama</h2>
       <p class="modal-desc" id="modalDesc">Sinopsis...</p>
-      <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="alert('Pemutaran video akan tersedia!')">
+      <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="alert('Pemutaran video siap ditambahkan!')">
         <i class="fas fa-play"></i> Tonton Sekarang
       </button>
     </div>
@@ -164,10 +156,9 @@
 <!-- ===== SCRIPT API ===== -->
 <script>
 // ==============================================
-// ⚙️ KONFIGURASI API — MASUKKAN API KEY KAMU DI SINI!
+// ✅ API KEY SUDAH DIPASANGIN OTOMATIS!
 // ==============================================
-// 👉 Daftar gratis di: https://www.themoviedb.org/settings/api
-const TMDB_API_KEY = 'MASUKKAN_API_KEY_KAMU_DISINI'; // GANTI INI!
+const TMDB_API_KEY = '1ca241a94357a3ab350f54896e29a6db';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMG_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -178,35 +169,11 @@ window.addEventListener('scroll', () => {
   document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
 });
 
-// === CEK API KEY ===
-function cekAPIKey() {
-  if (!TMDB_API_KEY || TMDB_API_KEY === 'MASUKKAN_API_KEY_KAMU_DISINI') {
-    document.getElementById('loadingBox').innerHTML = `
-      <div class="error-box">
-        <h3>⚠️ API Key Belum Diatur!</h3>
-        <p>Silakan buka kode HTML, cari baris <code>MASUKKAN_API_KEY_KAMU_DISINI</code>, lalu ganti dengan API Key dari TMDB.</p>
-        <p><strong>Cara dapat API Key:</strong></p>
-        <ol style="margin:10px 0 20px 20px">
-          <li>Buka <a href="https://www.themoviedb.org/signup" target="_blank" style="color:#ffc107">themoviedb.org/signup</a> — daftar gratis</li>
-          <li>Login → Settings → API → Create API Key</li>
-          <li>Pilih "Developer" → isi data → dapatkan API Key</li>
-          <li>Salin API Key → tempel di kode HTML</li>
-        </ol>
-        <button class="btn btn-primary" onclick="location.reload()">Sudah Siap? Muat Ulang</button>
-      </div>
-    `;
-    return false;
-  }
-  return true;
-}
-
-// === AMBIL DATA DARI API TMDB ===
+// === AMBIL DATA DRAMA CHINA ===
 async function ambilDrama() {
-  if (!cekAPIKey()) return;
-  
   try {
-    // Cari film/drama populer dengan kata kunci China
-    const res = await fetch(`${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=zh&sort_by=popularity.desc&page=1`);
+    // Ambil film/drama populer berbahasa China
+    const res = await fetch(`${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=zh&sort_by=popularity.desc&page=1&language=id-ID`);
     if (!res.ok) throw new Error('API Error: ' + res.status);
     const data = await res.json();
     allData = data.results || [];
@@ -216,7 +183,7 @@ async function ambilDrama() {
     document.getElementById('loadingBox').innerHTML = `
       <div class="error-box">
         <p>❌ Gagal memuat data: ${err.message}</p>
-        <p>Pastikan API Key sudah benar dan koneksi internet aktif.</p>
+        <p>Pastikan koneksi internet aktif dan API Key benar.</p>
         <button class="btn btn-primary" onclick="location.reload()" style="margin-top:10px">Coba Lagi</button>
       </div>
     `;
@@ -279,7 +246,6 @@ document.getElementById('searchInput').addEventListener('input', e => {
   const q = e.target.value.trim();
   if (q.length < 2) { tampilkanDrama(allData); return; }
   searchTimer = setTimeout(async () => {
-    if (!TMDB_API_KEY || TMDB_API_KEY === 'MASUKKAN_API_KEY_KAMU_DISINI') return;
     try {
       const res = await fetch(`${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}&language=id-ID`);
       const data = await res.json();
