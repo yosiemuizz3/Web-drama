@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DRACIN HUB — Drama China Short Sub Indo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0f0f0f; --bg-card: #1a1a1a; --bg-hover: #2a2a2a;
+      --red: #e50914; --red-hover: #f40612; --text: #ffffff;
+      --text-muted: #b3b3b3; --border: #333333;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: linear-gradient(180deg, rgba(0,0,0,.9) 0%, transparent 100%);
+      padding: 12px 20px; transition: background .3s;
+    }
+    header.scrolled { background: #000; }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1600px; margin: 0 auto; }
+    .logo { font-size: 26px; font-weight: 900; color: var(--red); text-decoration: none; }
+    .nav-middle { display: flex; gap: 24px; align-items: center; }
+    .nav-link { color: var(--text-muted); text-decoration: none; font-size: 15px; transition: color .2s; }
+    .nav-link:hover, .nav-link.active { color: var(--text); }
+    .search-box { position: relative; display: flex; align-items: center; }
+    .search-input {
+      background: rgba(51,51,51,.6); border: 1px solid transparent; color: var(--text);
+      padding: 8px 12px 8px 38px; border-radius: 4px; font-size: 14px; width: 240px; outline: none;
+    }
+    .search-input:focus { background: rgba(51,51,51,.9); border-color: var(--text-muted); }
+    .search-icon { position: absolute; left: 10px; color: var(--text-muted); pointer-events: none; }
+    .hero {
+      position: relative; height: 70vh; min-height: 450px; display: flex; align-items: flex-end;
+      background: linear-gradient(90deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.4) 50%, transparent 100%),
+                  url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=1920&q=80') center/cover no-repeat;
+      padding: 60px 40px 80px; margin-bottom: -60px;
+    }
+    .hero-content { max-width: 550px; z-index: 2; }
+    .hero-title { font-size: clamp(36px, 7vw, 64px); font-weight: 800; margin-bottom: 16px; }
+    .hero-desc { font-size: 18px; line-height: 1.6; color: #e5e5e5; margin-bottom: 24px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px;
+      border-radius: 4px; font-size: 17px; font-weight: 600; border: none; cursor: pointer;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn-primary { background: var(--red); color: white; }
+    .btn-primary:hover { background: var(--red-hover); }
+    .section { padding: 30px 40px; max-width: 1600px; margin: 0 auto; }
+    .section-title { font-size: 22px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+    .genre-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 20px; }
+    .genre-btn {
+      background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+      padding: 8px 20px; border-radius: 20px; cursor: pointer; white-space: nowrap; transition: all .2s;
+    }
+    .genre-btn:hover, .genre-btn.active { background: var(--red); border-color: var(--red); color: white; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+    .drama-card {
+      position: relative; border-radius: 6px; overflow: hidden; background: var(--bg-card);
+      cursor: pointer; transition: transform .3s;
+    }
+    .drama-card:hover { transform: scale(1.05); z-index: 10; }
+    .card-poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #2a2a2a; }
+    .card-info { padding: 10px; }
+    .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+    .card-rating { color: #ffc107; font-weight: 600; }
+    .loading { text-align: center; padding: 40px; color: var(--text-muted); }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid #333; border-top-color: var(--red);
+      border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: 2000;
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--bg-card); border-radius: 12px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,.7); border: none; color: white; font-size: 20px; cursor: pointer; z-index: 10;
+    }
+    .modal-img { width: 100%; height: 300px; object-fit: cover; }
+    .modal-content { padding: 24px; }
+    .modal-title { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+    .modal-desc { font-size: 16px; line-height: 1.7; color: #ddd; margin-bottom: 20px; }
+    .error-box { background: rgba(229,9,20,.2); border: 1px solid var(--red); padding: 15px; border-radius: 8px; color: #ffb3b3; }
+    @media (max-width: 900px) {
+      .nav-middle { display: none; }
+      .hero { padding: 40px 20px; height: 60vh; }
+      .section { padding: 20px 16px; }
+      .card-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header id="header">
+  <div class="nav-inner">
+    <a href="#" class="logo">DRACIN HUB</a>
+    <nav class="nav-middle">
+      <a href="#" class="nav-link active">Beranda</a>
+      <a href="#" class="nav-link">Populer</a>
+      <a href="#" class="nav-link">Terbaru</a>
+    </nav>
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="search-input" id="searchInput" placeholder="Cari drama china...">
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Drama China Short</h1>
+    <p class="hero-desc">Nonton koleksi drama china short terbaik dengan subtitle Indonesia. Data real-time dari API.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('dramaGrid').scrollIntoView({behavior:'smooth'})">
+      <i class="fas fa-play"></i> Mulai Jelajahi
+    </button>
+  </div>
+</section>
+
+<!-- ===== GENRE ===== -->
+<section class="section">
+  <h2 class="section-title"><i class="fas fa-th-list" style="color:var(--red)"></i> Kategori</h2>
+  <div class="genre-scroll">
+    <button class="genre-btn active" data-genre="all">Semua</button>
+    <button class="genre-btn" data-genre="romance">Romantis</button>
+    <button class="genre-btn" data-genre="history">Historis</button>
+    <button class="genre-btn" data-genre="fantasy">Fantasi</button>
+    <button class="genre-btn" data-genre="drama">Drama</button>
+  </div>
+</section>
+
+<!-- ===== DRAMA GRID ===== -->
+<section class="section">
+  <h2 class="section-title" id="sectionLabel">🔥 Terbaru & Populer</h2>
+  <div id="loadingBox" class="loading">
+    <div class="spinner"></div>
+    <p>Memuat data dari API...</p>
+  </div>
+  <div class="card-grid" id="dramaGrid" style="display:none;"></div>
+</section>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <img class="modal-img" id="modalImg" src="" alt="">
+    <div class="modal-content">
+      <h2 class="modal-title" id="modalTitle">Judul Drama</h2>
+      <p class="modal-desc" id="modalDesc">Sinopsis...</p>
+      <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="alert('Pemutaran video akan tersedia!')">
+        <i class="fas fa-play"></i> Tonton Sekarang
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCRIPT API ===== -->
+<script>
+// ==============================================
+// ⚙️ KONFIGURASI API — MASUKKAN API KEY KAMU DI SINI!
+// ==============================================
+// 👉 Daftar gratis di: https://www.themoviedb.org/settings/api
+const TMDB_API_KEY = 'MASUKKAN_API_KEY_KAMU_DISINI'; // GANTI INI!
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const TMDB_IMG_URL = 'https://image.tmdb.org/t/p/w500';
+
+let allData = [];
+
+// === SCROLL HEADER ===
+window.addEventListener('scroll', () => {
+  document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// === CEK API KEY ===
+function cekAPIKey() {
+  if (!TMDB_API_KEY || TMDB_API_KEY === 'MASUKKAN_API_KEY_KAMU_DISINI') {
+    document.getElementById('loadingBox').innerHTML = `
+      <div class="error-box">
+        <h3>⚠️ API Key Belum Diatur!</h3>
+        <p>Silakan buka kode HTML, cari baris <code>MASUKKAN_API_KEY_KAMU_DISINI</code>, lalu ganti dengan API Key dari TMDB.</p>
+        <p><strong>Cara dapat API Key:</strong></p>
+        <ol style="margin:10px 0 20px 20px">
+          <li>Buka <a href="https://www.themoviedb.org/signup" target="_blank" style="color:#ffc107">themoviedb.org/signup</a> — daftar gratis</li>
+          <li>Login → Settings → API → Create API Key</li>
+          <li>Pilih "Developer" → isi data → dapatkan API Key</li>
+          <li>Salin API Key → tempel di kode HTML</li>
+        </ol>
+        <button class="btn btn-primary" onclick="location.reload()">Sudah Siap? Muat Ulang</button>
+      </div>
+    `;
+    return false;
+  }
+  return true;
+}
+
+// === AMBIL DATA DARI API TMDB ===
+async function ambilDrama() {
+  if (!cekAPIKey()) return;
+  
+  try {
+    // Cari film/drama populer dengan kata kunci China
+    const res = await fetch(`${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=zh&sort_by=popularity.desc&page=1`);
+    if (!res.ok) throw new Error('API Error: ' + res.status);
+    const data = await res.json();
+    allData = data.results || [];
+    tampilkanDrama(allData);
+  } catch (err) {
+    console.error('Error:', err);
+    document.getElementById('loadingBox').innerHTML = `
+      <div class="error-box">
+        <p>❌ Gagal memuat data: ${err.message}</p>
+        <p>Pastikan API Key sudah benar dan koneksi internet aktif.</p>
+        <button class="btn btn-primary" onclick="location.reload()" style="margin-top:10px">Coba Lagi</button>
+      </div>
+    `;
+  }
+}
+
+// === TAMPILKAN DRAMA ===
+function tampilkanDrama(list) {
+  document.getElementById('loadingBox').style.display = 'none';
+  const grid = document.getElementById('dramaGrid');
+  grid.style.display = 'grid';
+  
+  if (list.length === 0) {
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888">Tidak ada hasil</p>';
+    return;
+  }
+
+  grid.innerHTML = list.map(d => `
+    <div class="drama-card" onclick="bukaDetail(${d.id})">
+      <img class="card-poster" src="${d.poster_path ? TMDB_IMG_URL + d.poster_path : 'https://via.placeholder.com/300x450/1a1a1a/ffffff?text=No+Image'}" alt="${d.title}" loading="lazy">
+      <div class="card-info">
+        <h3 class="card-title">${d.title || d.name || 'Tanpa Judul'}</h3>
+        <div class="card-meta">
+          <span class="card-rating">⭐ ${d.vote_average?.toFixed(1) || 'N/A'}</span>
+          <span>${d.release_date?.substring(0,4) || '—'}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// === BUKA DETAIL ===
+async function bukaDetail(id) {
+  try {
+    const res = await fetch(`${TMDB_BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}&language=id-ID`);
+    const d = await res.json();
+    document.getElementById('modalImg').src = d.backdrop_path ? TMDB_IMG_URL + d.backdrop_path : (d.poster_path ? TMDB_IMG_URL + d.poster_path : '');
+    document.getElementById('modalTitle').textContent = d.title || d.name || 'Tanpa Judul';
+    document.getElementById('modalDesc').textContent = d.overview || 'Sinopsis tidak tersedia.';
+    document.getElementById('modalOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  } catch (err) {
+    alert('Gagal memuat detail: ' + err.message);
+  }
+}
+
+// === TUTUP MODAL ===
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
+
+// === SEARCH ===
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  const q = e.target.value.trim();
+  if (q.length < 2) { tampilkanDrama(allData); return; }
+  searchTimer = setTimeout(async () => {
+    if (!TMDB_API_KEY || TMDB_API_KEY === 'MASUKKAN_API_KEY_KAMU_DISINI') return;
+    try {
+      const res = await fetch(`${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}&language=id-ID`);
+      const data = await res.json();
+      tampilkanDrama(data.results || []);
+    } catch (err) { console.error(err); }
+  }, 500);
+});
+
+// === FILTER GENRE ===
+document.querySelectorAll('.genre-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const genre = btn.dataset.genre;
+    document.getElementById('sectionLabel').innerHTML = 
+      genre === 'all' ? '🔥 Semua Drama' : `🎭 ${genre.charAt(0).toUpperCase()+genre.slice(1)}`;
+    tampilkanDrama(allData);
+  });
+});
+
+// === INIT ===
+ambilDrama();
+</script>
+
+</body>
+</html>
